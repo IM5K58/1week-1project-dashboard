@@ -28,6 +28,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
   const [playstoreUrl, setPlaystoreUrl] = useState(project?.playstore_url || "");
   const [isPublished, setIsPublished] = useState(project?.is_published ?? true);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   const generateSlug = (text: string) => {
@@ -37,6 +38,43 @@ export function ProjectForm({ project }: ProjectFormProps) {
   const handleTitleChange = (value: string) => {
     setTitle(value);
     if (!isEdit) setSlug(generateSlug(value));
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setError("이미지 파일만 업로드 가능합니다.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("파일 크기는 5MB 이하여야 합니다.");
+      return;
+    }
+
+    setUploading(true);
+    setError("");
+
+    const ext = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("thumbnails")
+      .upload(fileName, file);
+
+    if (uploadError) {
+      setError("업로드 실패: " + uploadError.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from("thumbnails")
+      .getPublicUrl(fileName);
+
+    setThumbnailUrl(publicUrl);
+    setUploading(false);
   };
 
   const togglePlatform = (platform: Platform) => {
@@ -134,8 +172,43 @@ export function ProjectForm({ project }: ProjectFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2" style={{ color: "#cbd5e1" }}>썸네일 이미지 URL</label>
-        <input type="url" value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)} className="dark-input w-full" placeholder="https://..." />
+        <label className="block text-sm font-medium mb-2" style={{ color: "#cbd5e1" }}>썸네일 이미지</label>
+
+        {/* Preview */}
+        {thumbnailUrl && (
+          <div className="mb-3 relative inline-block">
+            <img src={thumbnailUrl} alt="미리보기" className="max-h-40 rounded-lg" style={{ border: "1px solid rgba(255,255,255,0.08)" }} />
+            <button
+              type="button"
+              onClick={() => setThumbnailUrl("")}
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs text-white"
+              style={{ background: "rgba(239,68,68,0.8)" }}
+            >
+              X
+            </button>
+          </div>
+        )}
+
+        {/* Upload */}
+        <label
+          className="glass-card flex flex-col items-center justify-center py-6 cursor-pointer mb-2"
+          style={{ borderStyle: "dashed" }}
+        >
+          <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" disabled={uploading} />
+          {uploading ? (
+            <p className="text-sm" style={{ color: "#94a3b8" }}>업로드 중...</p>
+          ) : (
+            <>
+              <svg className="w-8 h-8 mb-2" style={{ color: "#64748b" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-sm" style={{ color: "#94a3b8" }}>클릭하여 이미지 업로드 (최대 5MB)</p>
+            </>
+          )}
+        </label>
+
+        {/* URL fallback */}
+        <input type="url" value={thumbnailUrl} onChange={(e) => setThumbnailUrl(e.target.value)} className="dark-input w-full" placeholder="또는 이미지 URL 직접 입력" />
       </div>
 
       <div>
