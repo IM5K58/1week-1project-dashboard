@@ -108,15 +108,27 @@ body {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #94a3b8;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   padding: 0.375rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 .chip:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #cbd5e1;
+}
+
+/* Filter chip (active) - same box size as .chip */
+.chip-active {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border: 1px solid transparent;
+  color: white;
+  border-radius: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Ghost interactive */

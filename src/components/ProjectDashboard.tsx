@@ -68,14 +68,14 @@ export function ProjectDashboard({ projects }: { projects: Project[] }) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => setTheme("")} className={!theme ? "btn-primary text-sm" : "chip"}>
+          <button onClick={() => setTheme("")} className={!theme ? "chip-active" : "chip"}>
             전체
           </button>
           {THEMES.map((t) => (
             <button
               key={t}
               onClick={() => setTheme(theme === t ? "" : t)}
-              className={theme === t ? "btn-primary text-sm" : "chip"}
+              className={theme === t ? "chip-active" : "chip"}
             >
               {t}
             </button>
@@ -84,27 +84,29 @@ export function ProjectDashboard({ projects }: { projects: Project[] }) {
       </section>
 
       {/* Project Grid */}
-      {filtered.length === 0 ? (
-        <div className="text-center py-20">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            <svg className="w-8 h-8" style={{ color: "#475569" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
+      <div style={{ minHeight: "50vh" }}>
+        {filtered.length === 0 ? (
+          <div className="text-center py-20">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <svg className="w-8 h-8" style={{ color: "#475569" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+            </div>
+            <p style={{ color: "#64748b" }}>
+              {search || theme ? "검색 결과가 없습니다." : "아직 프로젝트가 없습니다."}
+            </p>
           </div>
-          <p style={{ color: "#64748b" }}>
-            {search || theme ? "검색 결과가 없습니다." : "아직 프로젝트가 없습니다."}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {filtered.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-      )}
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {filtered.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
